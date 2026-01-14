@@ -20,7 +20,7 @@ export class SocketService implements OnDestroy {
             return;
         }
 
-        const socketUrl = environment.socketUrl.replace("/api", "");
+        const socketUrl = environment.socketUrl
 
         this.socket = io(socketUrl, {
             transports: ["websocket", "polling"],
