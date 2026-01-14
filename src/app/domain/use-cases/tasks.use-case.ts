@@ -1,6 +1,6 @@
 import type { Observable } from "rxjs";
 import type { Tasks } from "@domain/models/kanban-tasks.model";
-import type { CreateTaskDto, TasksGateway } from "@domain/gateways/tasks.gateway";
+import type { CreateTaskDto, ReorderTaskDto, TasksGateway } from "@domain/gateways/tasks.gateway";
 
 export class TasksUseCase {
     constructor(private readonly gateway: TasksGateway) {}
@@ -11,5 +11,9 @@ export class TasksUseCase {
 
     update(task: Tasks): Observable<Tasks> {
         return this.gateway.update(task);
+    }
+
+    reorder(taskId: string, dto: ReorderTaskDto): Observable<Tasks> {
+        return this.gateway.reorder(taskId, dto);
     }
 }

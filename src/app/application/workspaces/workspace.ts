@@ -6,7 +6,8 @@ import {
     moveItemInArray,
     transferArrayItem,
 } from "@angular/cdk/drag-drop";
-import { Component, computed, input, signal, viewChild } from "@angular/core";
+import { Component, computed, DestroyRef, inject, input, signal } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { CdkScrollable } from "@angular/cdk/overlay";
 import { Ellipsis, LucideAngularModule, Plus } from "lucide-angular";
 import type { Columns } from "@domain/models/kanban-columns.model";
@@ -17,6 +18,9 @@ import { ContextMenu } from "@shared/ui/context-menu/context-menu";
 import { MenuItem } from "@shared/ui/context-menu/menu-item";
 import { TaskDetail } from "@shared/ui/modal/task-detail/task-detail";
 import { TaskCreate } from "@shared/ui/modal/task-create/task-create";
+import { TasksUseCase } from "@domain/use-cases/tasks.use-case";
+import { ColumnsUseCase } from "@domain/use-cases/columns.use-case";
+import { COLUMNS_GATEWAY, TASKS_GATEWAY } from "@application/tokens";
 
 @Component({
     selector: "app-workspace",
@@ -41,6 +45,10 @@ import { TaskCreate } from "@shared/ui/modal/task-create/task-create";
 export class Workspace {
     readonly workspaces = input.required<Workspaces>();
 
+    private readonly tasksUseCase = new TasksUseCase(inject(TASKS_GATEWAY));
+    private readonly columnsUseCase = new ColumnsUseCase(inject(COLUMNS_GATEWAY));
+    private readonly destroyRef = inject(DestroyRef);
+
     protected readonly connectedLists = computed(() =>
         this.workspaces().columns.map((_, index) => `tasks-list-${index}`),
     );
@@ -48,18 +56,35 @@ export class Workspace {
     protected readonly Ellipsis = Ellipsis;
     protected readonly PlusIcon = Plus;
 
-    protected readonly selectedTask = signal<Tasks | null>(null);
+    private readonly selectedTaskId = signal<string | null>(null);
     protected readonly selectedColumnId = signal<string | null>(null);
 
-    private readonly taskDetailModal = viewChild<TaskDetail>("taskDetailModal");
-    private readonly taskCreateModal = viewChild<TaskCreate>("taskCreateModal");
+    protected readonly selectedTask = computed(() => {
+        const taskId = this.selectedTaskId();
+        if (!taskId) return null;
+
+        for (const column of this.workspaces().columns) {
+            const task = column.tasks.find((t) => t.id === taskId);
+            if (task) return task;
+        }
+        return null;
+    });
 
     dropColumn(event: CdkDragDrop<Columns[]>): void {
+        const column = event.container.data[event.previousIndex];
         moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+
+        this.columnsUseCase
+            .reorder(column.id, { newPosition: event.currentIndex })
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe();
     }
 
     drop(event: CdkDragDrop<Tasks[]>): void {
-        if (event.previousContainer === event.container) {
+        const task = event.previousContainer.data[event.previousIndex];
+        const isSameColumn = event.previousContainer === event.container;
+
+        if (isSameColumn) {
             moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
         } else {
             transferArrayItem(
@@ -69,10 +94,21 @@ export class Workspace {
                 event.currentIndex,
             );
         }
+
+        const columnIndex = parseInt(event.container.id.replace("tasks-list-", ""), 10);
+        const targetColumn = this.workspaces().columns[columnIndex];
+
+        this.tasksUseCase
+            .reorder(task.id, {
+                newOrder: event.currentIndex,
+                newColumnId: isSameColumn ? undefined : targetColumn.id,
+            })
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe();
     }
 
     openTaskDetail(task: Tasks): void {
-        this.selectedTask.set(task);
+        this.selectedTaskId.set(task.id);
     }
 
     openTaskCreate(columnId: string): void {
@@ -80,7 +116,7 @@ export class Workspace {
     }
 
     protected onTaskDetailClosed(): void {
-        this.selectedTask.set(null);
+        this.selectedTaskId.set(null);
     }
 
     protected onTaskCreateClosed(): void {

@@ -2,7 +2,7 @@ import { inject } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import type { Observable } from "rxjs";
 import type { Tasks } from "@domain/models/kanban-tasks.model";
-import type { CreateTaskDto, TasksGateway } from "@domain/gateways/tasks.gateway";
+import type { CreateTaskDto, ReorderTaskDto, TasksGateway } from "@domain/gateways/tasks.gateway";
 import { environment } from "@environments/environment";
 
 export class HttpTasksGateway implements TasksGateway {
@@ -14,5 +14,9 @@ export class HttpTasksGateway implements TasksGateway {
 
     update(task: Tasks): Observable<Tasks> {
         return this.http.patch<Tasks>(`${environment.apiUrl}/tasks/${task.id}`, task);
+    }
+
+    reorder(taskId: string, dto: ReorderTaskDto): Observable<Tasks> {
+        return this.http.patch<Tasks>(`${environment.apiUrl}/tasks/${taskId}/reorder`, dto);
     }
 }

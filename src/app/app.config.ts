@@ -1,11 +1,16 @@
 import { ApplicationConfig, LOCALE_ID, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter } from '@angular/router';
+import { registerLocaleData } from '@angular/common';
+import localeFr from '@angular/common/locales/fr';
 
 import { routes } from './app.routes';
 import { provideHttpClient, withFetch } from '@angular/common/http';
-import { ALL_WORKSPACES_GATEWAY, FIND_ONE_WORKSPACE_GATEWAY, TASKS_GATEWAY } from '@application/tokens';
+import { ALL_WORKSPACES_GATEWAY, COLUMNS_GATEWAY, FIND_ONE_WORKSPACE_GATEWAY, TASKS_GATEWAY } from '@application/tokens';
+import { HttpColumnsGateway } from '@infra/http-columns.gateway';
 import { HttpWorkspacesGateway } from '@infra/http-workspaces.gateway';
 import { HttpTasksGateway } from '@infra/http-tasks.gateway';
+
+registerLocaleData(localeFr);
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -27,6 +32,10 @@ export const appConfig: ApplicationConfig = {
     {
       provide: TASKS_GATEWAY,
       useClass: HttpTasksGateway,
+    },
+    {
+      provide: COLUMNS_GATEWAY,
+      useClass: HttpColumnsGateway,
     },
   ]
 };

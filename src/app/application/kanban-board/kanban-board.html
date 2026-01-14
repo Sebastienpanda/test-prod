@@ -5,7 +5,7 @@
 
     <app-header />
 
-    @if (workspace$ | async; as workspace) {
+    @if (workspace(); as workspace) {
     <app-workspace [workspaces]="workspace" />
     }
 </main>
