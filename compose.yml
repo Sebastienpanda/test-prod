@@ -8,8 +8,8 @@ services:
       - "traefik.http.routers.angular.tls.certresolver=letsencrypt"
       - "traefik.http.services.angular.loadbalancer.server.port=80"
     networks:
-      - web
+      - dokploy-network
 
 networks:
-  web:
+  dokploy-network:
     external: true
