@@ -1,0 +1,32 @@
+<header class="header">
+    <input [formControl]="form.controls.title" class="title-input" placeholder="Titre de la tâche" type="text" />
+</header>
+
+<div class="body">
+    <div class="field">
+        <span class="field-label">
+            <lucide-icon [img]="DescriptionIcon" size="16" />
+            Description
+        </span>
+        <textarea
+            [formControl]="form.controls.description"
+            class="field-textarea"
+            placeholder="Ajouter une description..."
+            rows="4"
+        ></textarea>
+    </div>
+
+    <div class="field">
+        <span class="field-label">Statut</span>
+        <select [formControl]="form.controls.status" class="field-select">
+            @for (option of statusOptions; track option.value) {
+            <option [value]="option.value">{{ option.label }}</option>
+            }
+        </select>
+    </div>
+</div>
+
+<footer class="footer">
+    <button (click)="onCancel()" appBtn type="button">Annuler</button>
+    <button (click)="onSave()" appBtn type="button" variant="primary">Sauvegarder</button>
+</footer>

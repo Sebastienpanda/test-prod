@@ -1,0 +1,12 @@
+.badge {
+    border-radius: 0.375rem;
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    text-align: center;
+    transition: background-color 350ms ease-in-out;
+    z-index: 1;
+
+    &:hover {
+        background-color: var(--color-base-300);
+    }
+}

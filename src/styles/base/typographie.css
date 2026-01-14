@@ -1,0 +1,15 @@
+html {
+    font-family: var(--font-nunito-sans, "Nunito Sans"), sans-serif;
+    font-weight: 400;
+    scroll-behavior: smooth;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: var(--font-montserrat, "Montserrat"), sans-serif;
+    font-weight: 800;
+}

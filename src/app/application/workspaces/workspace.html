@@ -1,0 +1,60 @@
+<section
+    (cdkDropListDropped)="dropColumn($event)"
+    [cdkDropListData]="workspaces().columns"
+    cdkDropList
+    cdkDropListOrientation="horizontal"
+    cdkScrollable
+    class="kanban"
+>
+    @for (column of workspaces().columns; track column.id; let i = $index) {
+    <div cdkDrag class="card">
+        <div cdkDragHandle class="header">
+            <h2>{{ column.name }}</h2>
+            <app-context-menu>
+                <button appBadge aria-label="Options de la colonne" trigger type="button">
+                    <lucide-icon [img]="Ellipsis" />
+                </button>
+                <div menu>
+                    <app-menu-item (click)="openTaskCreate(column.id)">
+                        <lucide-icon [img]="PlusIcon" size="16" />
+                        Créer une tâche
+                    </app-menu-item>
+                </div>
+            </app-context-menu>
+        </div>
+        <ul
+            (cdkDropListDropped)="drop($event)"
+            [cdkDropListConnectedTo]="connectedLists()"
+            [cdkDropListData]="column.tasks"
+            [id]="'tasks-list-' + i"
+            cdkDropList
+            class="list"
+        >
+            @for (item of column.tasks; track item.id) {
+            <li cdkDrag class="item">
+                <button
+                    (click)="openTaskDetail(item)"
+                    [attr.aria-label]="'Ouvrir les détails : ' + item.title"
+                    class="item-button"
+                    type="button"
+                >
+                    <div class="item-linear"></div>
+                    <span class="item-title">{{ item.title }}</span>
+                </button>
+            </li>
+            } @empty {
+            <div class="empty">
+                <p>Aucune tâche</p>
+                <button (click)="openTaskCreate(column.id)" type="button">Créer une tâche</button>
+            </div>
+            }
+        </ul>
+    </div>
+    }
+</section>
+
+@if (selectedTask(); as task) {
+<app-task-detail #taskDetailModal (closed)="onTaskDetailClosed()" [task]="task" />
+} @if (selectedColumnId(); as columnId) {
+<app-task-create #taskCreateModal (closed)="onTaskCreateClosed()" [columnId]="columnId" />
+}

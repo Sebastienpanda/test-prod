@@ -1,0 +1,40 @@
+<header class="header">
+    <h3 class="title">{{ task().title }}</h3>
+    <button (click)="onEdit()" appBtn aria-label="Éditer la tâche" class="icon-btn" type="button">
+        <lucide-icon [img]="EditIcon" size="18" />
+    </button>
+</header>
+
+<div class="body">
+    <div class="field">
+        <span class="field-label">
+            <lucide-icon [img]="DescriptionIcon" size="16" />
+            Description
+        </span>
+        <p class="field-value description">{{ task().description || "Aucune description" }}</p>
+    </div>
+
+    <div class="field">
+        <span class="field-label">Statut</span>
+        <span class="status-badge">{{ statusLabel() }}</span>
+    </div>
+
+    <div class="field-row">
+        <div class="field">
+            <span class="field-label">
+                <lucide-icon [img]="CalendarIcon" size="16" />
+                Créée le
+            </span>
+            <span class="field-value">{{ task().createdAt | date: "d MMMM yyyy" }}</span>
+        </div>
+        @if (task().updatedAt) {
+        <div class="field">
+            <span class="field-label">
+                <lucide-icon [img]="ClockIcon" size="16" />
+                Modifiée le
+            </span>
+            <span class="field-value">{{ task().updatedAt | date: "d MMMM yyyy" }}</span>
+        </div>
+        }
+    </div>
+</div>

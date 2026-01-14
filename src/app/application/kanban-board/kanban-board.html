@@ -1,0 +1,11 @@
+<main [class]="asideOpen() ? 'asideOpen' : 'asideClose'" class="main">
+    @if (workspaces$ | async; as workspaces) {
+    <app-aside (toggleAside)="toggleAside()" [isAsideOpen]="asideOpen()" [workspaces]="workspaces" />
+    }
+
+    <app-header />
+
+    @if (workspace$ | async; as workspace) {
+    <app-workspace [workspaces]="workspace" />
+    }
+</main>

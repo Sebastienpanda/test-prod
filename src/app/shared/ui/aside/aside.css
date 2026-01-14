@@ -1,0 +1,60 @@
+.aside {
+    background-color: var(--color-base-300);
+    border-right: 1px solid color-mix(in oklab, var(--color-base-content) 10%, transparent);
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+
+    .content {
+        align-items: center;
+        border-bottom: 1px solid color-mix(in oklab, var(--color-base-content) 10%, transparent);
+        display: flex;
+        height: 79px;
+        justify-content: space-between;
+        padding: 1.5rem;
+
+        &:is(.close) {
+            justify-content: center;
+        }
+
+        h2 {
+            font-size: 1.25rem;
+        }
+
+        .icon {
+            cursor: pointer;
+            transition: color 350ms ease-in-out;
+
+            &:hover {
+                color: var(--color-primary);
+            }
+        }
+    }
+
+    .workspaces-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+
+        .workspace-btn {
+            border-radius: 8px;
+            cursor: pointer;
+            overflow: hidden;
+            padding: 0.5rem;
+            text-overflow: ellipsis;
+            transition: background-color 350ms ease-in-out;
+            white-space: nowrap;
+            width: 100%;
+
+            &:hover {
+                background-color: var(--color-primary);
+            }
+
+            &:is(.active) {
+                background-color: var(--color-primary);
+                color: var(--color-primary-content);
+            }
+        }
+    }
+}

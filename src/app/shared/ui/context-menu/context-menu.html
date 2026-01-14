@@ -1,0 +1,8 @@
+<button (click)="toggle()" class="trigger">
+    <ng-content select="[trigger]" />
+</button>
+@if (isOpen()) {
+<div class="menu">
+    <ng-content select="[menu]" />
+</div>
+}

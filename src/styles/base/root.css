@@ -1,0 +1,8 @@
+:root {
+    --font-montserrat: "Montserrat";
+    --font-nunito-sans: "Nunito Sans";
+}
+
+body {
+    background-color: var(--color-base-100);
+}

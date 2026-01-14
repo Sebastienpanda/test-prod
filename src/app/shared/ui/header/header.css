@@ -1,0 +1,28 @@
+.header {
+    align-items: center;
+    background-color: var(--color-base-300);
+    border-bottom: 1px solid color-mix(in oklab, var(--color-base-content) 10%, transparent);
+    display: flex;
+    height: 4.938rem;
+    justify-content: space-between;
+    padding: 1.5rem;
+
+    h1 {
+        font-size: 1.125rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        @media (width >= 64rem) {
+            font-size: 1.5rem;
+        }
+    }
+
+    .group {
+        transition: rotate 350ms ease-in-out;
+
+        &:hover {
+            rotate: 12deg;
+        }
+    }
+}

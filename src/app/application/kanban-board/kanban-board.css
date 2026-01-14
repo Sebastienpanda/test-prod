@@ -1,0 +1,28 @@
+.main {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    height: 100dvh;
+    transition: grid-template-columns 350ms ease-in-out;
+
+    &.asideOpen {
+        grid-template-columns: 255px minmax(0, 1fr);
+    }
+
+    &.asideClose {
+        grid-template-columns: 100px minmax(0, 1fr);
+    }
+}
+
+.header-grid {
+    grid-column-start: 2;
+    grid-row-start: 1;
+}
+
+.kanban-grid {
+    grid-column-start: 2;
+    grid-row-start: 2;
+}
+
+.aside-grid {
+    grid-row: span 2 / span 2;
+}

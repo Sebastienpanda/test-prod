@@ -1,0 +1,16 @@
+<header class="header">
+    <h1>Mon projet</h1>
+    <button
+        (click)="themeService.toggle()"
+        [attr.aria-label]="themeService.isDark() ? 'Passer en mode clair' : 'Passer en mode sombre'"
+        appBtn
+        class="group"
+        variant="circle"
+    >
+        @if (themeService.isDark()) {
+        <lucide-icon [img]="Sun" aria-hidden="true" size="20" />
+        } @else {
+        <lucide-icon [img]="Moon" aria-hidden="true" size="20" />
+        }
+    </button>
+</header>

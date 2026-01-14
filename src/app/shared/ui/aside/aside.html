@@ -1,0 +1,26 @@
+<aside class="aside">
+    <div [class.close]="!isAsideOpen()" class="content">
+        @if (isAsideOpen()) {
+        <h2>
+            <a routerLink="/">Kanbano</a>
+        </h2>
+        }
+        <button (click)="onToggleAside()" class="icon">
+            <lucide-icon [img]="isAsideOpen() ? ArrowLeft : ArrowRight" />
+        </button>
+    </div>
+    <ul class="workspaces-list">
+        @for (workspace of workspaces(); track workspace.id) {
+        <li class="workspaces-items">
+            <button
+                (click)="onSelectWorkspace(workspace.id)"
+                [class.active]="selectedWorkspaceId() === workspace.id"
+                [title]="workspace.name"
+                class="workspace-btn"
+            >
+                @if (isAsideOpen()) { {{ workspace.name }} } @else { {{ workspace.name | initialLetters }} }
+            </button>
+        </li>
+        }
+    </ul>
+</aside>
