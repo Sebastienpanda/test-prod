@@ -1,0 +1,15 @@
+services:
+  angular-app:
+    build: .
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.angular.rule=Host(`kanban.kanbano.fr`)"
+      - "traefik.http.routers.angular.entrypoints=websecure"
+      - "traefik.http.routers.angular.tls.certresolver=letsencrypt"
+      - "traefik.http.services.angular.loadbalancer.server.port=80"
+    networks:
+      - web
+
+networks:
+  web:
+    external: true
