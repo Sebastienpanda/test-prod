@@ -11,6 +11,16 @@ export const STATUS_OPTIONS: readonly StatusOption[] = [
     { value: "done", label: "Terminé" },
 ];
 
+const COLUMN_NAME_TO_STATUS: Record<string, Status> = {
+    "À faire": "todo",
+    "En cours": "in_progress",
+    "Terminé": "done",
+};
+
+export function getStatusFromColumnName(columnName: string): Status {
+    return COLUMN_NAME_TO_STATUS[columnName] ?? "todo";
+}
+
 export type Tasks = {
     id: string;
     title: string;

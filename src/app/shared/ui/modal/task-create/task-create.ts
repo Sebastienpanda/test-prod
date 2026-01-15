@@ -72,6 +72,7 @@ import { ModalService } from "../modal.service";
 })
 export class TaskCreate {
     readonly columnId = input.required<string>();
+    readonly initialStatus = input<Status>("todo");
     readonly closed = output<void>();
     protected readonly DescriptionIcon = TextAlignStart;
     protected readonly statusOptions = STATUS_OPTIONS;
@@ -92,7 +93,7 @@ export class TaskCreate {
     }
 
     open(): void {
-        this.form.reset({ title: "", description: "", status: "todo" });
+        this.form.reset({ title: "", description: "", status: this.initialStatus() });
         this.modal().open();
     }
 

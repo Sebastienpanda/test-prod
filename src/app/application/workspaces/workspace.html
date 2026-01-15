@@ -10,17 +10,19 @@
     <div cdkDrag class="card">
         <div cdkDragHandle class="header">
             <h2>{{ column.name }}</h2>
+            @if (column.name !== 'Terminé') {
             <app-context-menu>
                 <button appBadge aria-label="Options de la colonne" trigger type="button">
                     <lucide-icon [img]="Ellipsis" />
                 </button>
                 <div menu>
-                    <app-menu-item (click)="openTaskCreate(column.id)">
+                    <app-menu-item (click)="openTaskCreate(column)">
                         <lucide-icon [img]="PlusIcon" size="16" />
                         Créer une tâche
                     </app-menu-item>
                 </div>
             </app-context-menu>
+            }
         </div>
         <ul
             (cdkDropListDropped)="drop($event)"
@@ -45,7 +47,9 @@
             } @empty {
             <div class="empty">
                 <p>Aucune tâche</p>
-                <button (click)="openTaskCreate(column.id)" type="button">Créer une tâche</button>
+                @if (column.name !== 'Terminé') {
+                <button (click)="openTaskCreate(column)" type="button">Créer une tâche</button>
+                }
             </div>
             }
         </ul>
@@ -55,6 +59,6 @@
 
 @if (selectedTask(); as task) {
 <app-task-detail #taskDetailModal (closed)="onTaskDetailClosed()" [task]="task" />
-} @if (selectedColumnId(); as columnId) {
-<app-task-create #taskCreateModal (closed)="onTaskCreateClosed()" [columnId]="columnId" />
+} @if (selectedColumn(); as column) {
+<app-task-create (closed)="onTaskCreateClosed()" [columnId]="column.id" [initialStatus]="initialStatus()" />
 }

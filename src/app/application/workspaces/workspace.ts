@@ -11,7 +11,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { CdkScrollable } from "@angular/cdk/overlay";
 import { Ellipsis, LucideAngularModule, Plus } from "lucide-angular";
 import type { Columns } from "@domain/models/kanban-columns.model";
-import type { Tasks } from "@domain/models/kanban-tasks.model";
+import { getStatusFromColumnName, type Tasks } from "@domain/models/kanban-tasks.model";
 import type { Workspaces } from "@domain/models/kanban-workspaces.model";
 import { BadgeDirective } from "@shared/ui/directives/badge.directive";
 import { ContextMenu } from "@shared/ui/context-menu/context-menu";
@@ -57,7 +57,7 @@ export class Workspace {
     protected readonly PlusIcon = Plus;
 
     private readonly selectedTaskId = signal<string | null>(null);
-    protected readonly selectedColumnId = signal<string | null>(null);
+    protected readonly selectedColumn = signal<Columns | null>(null);
 
     protected readonly selectedTask = computed(() => {
         const taskId = this.selectedTaskId();
@@ -68,6 +68,11 @@ export class Workspace {
             if (task) return task;
         }
         return null;
+    });
+
+    protected readonly initialStatus = computed(() => {
+        const column = this.selectedColumn();
+        return column ? getStatusFromColumnName(column.name) : "todo";
     });
 
     dropColumn(event: CdkDragDrop<Columns[]>): void {
@@ -111,8 +116,8 @@ export class Workspace {
         this.selectedTaskId.set(task.id);
     }
 
-    openTaskCreate(columnId: string): void {
-        this.selectedColumnId.set(columnId);
+    openTaskCreate(column: Columns): void {
+        this.selectedColumn.set(column);
     }
 
     protected onTaskDetailClosed(): void {
@@ -120,6 +125,6 @@ export class Workspace {
     }
 
     protected onTaskCreateClosed(): void {
-        this.selectedColumnId.set(null);
+        this.selectedColumn.set(null);
     }
 }

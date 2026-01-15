@@ -4,11 +4,12 @@ import { registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
 
 import { routes } from './app.routes';
-import { provideHttpClient, withFetch } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { ALL_WORKSPACES_GATEWAY, COLUMNS_GATEWAY, FIND_ONE_WORKSPACE_GATEWAY, TASKS_GATEWAY } from '@application/tokens';
 import { HttpColumnsGateway } from '@infra/http-columns.gateway';
 import { HttpWorkspacesGateway } from '@infra/http-workspaces.gateway';
 import { HttpTasksGateway } from '@infra/http-tasks.gateway';
+import { errorInterceptor } from '@shared/interceptors/error.interceptor';
 
 registerLocaleData(localeFr);
 
@@ -16,7 +17,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
-    provideHttpClient(withFetch()),
+    provideHttpClient(withFetch(), withInterceptors([errorInterceptor])),
     {
       provide: LOCALE_ID,
       useFactory: () => navigator.language || "fr",
