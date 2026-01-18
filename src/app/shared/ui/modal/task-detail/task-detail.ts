@@ -10,7 +10,8 @@ import {
     viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import type { Tasks } from "@domain/models/kanban-tasks.model";
+import type { Task } from "@domain/models/task.model";
+import type { Status } from "@domain/models/status.model";
 import { Modal } from "../modal";
 import { TaskView } from "../task-view/task-view";
 import { TaskEdit } from "../task-edit/task-edit";
@@ -23,9 +24,9 @@ import { ModalService } from "../modal.service";
         <app-modal #modal (closed)="onModalClosed()">
             @if (task(); as currentTask) {
                 @if (isEditMode()) {
-                    <app-task-edit [task]="currentTask" (saveTask)="onSave($event)" (cancelEdit)="onCancelEdit()" />
+                    <app-task-edit [task]="currentTask" [statusOptions]="statusOptions()" (saveTask)="onSave($event)" (cancelEdit)="onCancelEdit()" />
                 } @else {
-                    <app-task-view [task]="currentTask" (edit)="onEdit()" />
+                    <app-task-view [task]="currentTask" [statusOptions]="statusOptions()" (edit)="onEdit()" />
                     <footer class="footer">
                         <button (click)="close()" appBtn type="button" variant="primary">Fermer</button>
                     </footer>
@@ -46,7 +47,8 @@ import { ModalService } from "../modal.service";
     imports: [Modal, TaskView, TaskEdit, ButtonDirective],
 })
 export class TaskDetail {
-    readonly task = input.required<Tasks>();
+    readonly task = input.required<Task>();
+    readonly statusOptions = input.required<Status[]>();
     readonly closed = output<void>();
     protected readonly isEditMode = signal(false);
     private readonly modalService = inject(ModalService);
@@ -71,7 +73,7 @@ export class TaskDetail {
         this.isEditMode.set(true);
     }
 
-    protected onSave(task: Tasks): void {
+    protected onSave(task: Task): void {
         this.modalService
             .updateTask(task)
             .pipe(takeUntilDestroyed(this.destroyRef))

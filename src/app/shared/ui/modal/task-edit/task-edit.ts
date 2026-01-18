@@ -1,29 +1,31 @@
 import { ChangeDetectionStrategy, Component, inject, input, OnInit, output } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
-import { STATUS_OPTIONS, type Status, type Tasks } from "@domain/models/kanban-tasks.model";
+import type { Task } from "@domain/models/task.model";
+import type { Status } from "@domain/models/status.model";
 import { ButtonDirective } from "@shared/ui/directives/button.directive";
 import { LucideAngularModule, TextAlignStart } from "lucide-angular";
+import { StatusSelect } from "@shared/ui/status-select/status-select";
 
 @Component({
     selector: "app-task-edit",
     templateUrl: "./task-edit.html",
     styleUrl: "./task-edit.css",
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [ReactiveFormsModule, LucideAngularModule, ButtonDirective],
+    imports: [ReactiveFormsModule, LucideAngularModule, ButtonDirective, StatusSelect],
 })
 export class TaskEdit implements OnInit {
-    readonly task = input.required<Tasks>();
-    readonly saveTask = output<Tasks>();
+    readonly task = input.required<Task>();
+    readonly statusOptions = input.required<Status[]>();
+    readonly saveTask = output<Task>();
     readonly cancelEdit = output<void>();
 
     protected readonly DescriptionIcon = TextAlignStart;
-    protected readonly statusOptions = STATUS_OPTIONS;
 
     private readonly fb = inject(FormBuilder);
     protected readonly form = this.fb.nonNullable.group({
         title: [""],
         description: [""],
-        status: ["todo" as Status],
+        statusId: [""],
     });
 
     ngOnInit(): void {
@@ -31,7 +33,7 @@ export class TaskEdit implements OnInit {
         this.form.patchValue({
             title: task.title,
             description: task.description,
-            status: task.status,
+            statusId: task.statusId,
         });
     }
 

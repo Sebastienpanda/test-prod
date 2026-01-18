@@ -1,0 +1,24 @@
+<app-modal #modal (closed)="onModalClosed()">
+    <h2 class="title">Nouvelle colonne</h2>
+
+    <form [formGroup]="form" class="form">
+        <div class="field">
+            <label class="field-label" for="columnName">Nom de la colonne</label>
+            <input
+                formControlName="name"
+                class="field-input"
+                id="columnName"
+                placeholder="Ex: En attente, En revue..."
+                type="text"
+            />
+            <app-form-error [control]="form.controls.name" />
+        </div>
+    </form>
+
+    <footer class="footer">
+        <button (click)="close()" appBtn type="button">Annuler</button>
+        <button (click)="onCreate()" [disabled]="isInvalid()" appBtn type="button" variant="primary">
+            Créer
+        </button>
+    </footer>
+</app-modal>

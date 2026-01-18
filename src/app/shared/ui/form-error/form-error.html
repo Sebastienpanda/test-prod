@@ -1,0 +1,8 @@
+@if (control().invalid && (control().dirty || control().touched)) {
+  <div class="overflow-hidden error">
+    @for (msg of getErrorMessages(); track $index) {
+      <span
+        class="mt-2 text-sm text-error block animate-fade-in transition duration-350 ease-in-out">{{ msg }}</span>
+    }
+  </div>
+}

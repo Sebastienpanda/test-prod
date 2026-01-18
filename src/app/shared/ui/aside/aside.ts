@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, input, output } from "@angular/core";
-import { ArrowLeft, ArrowRight, LucideAngularModule } from "lucide-angular";
-import { Workspaces } from "@domain/models/kanban-workspaces.model";
+import { ArrowLeft, ArrowRight, LucideAngularModule, Plus } from "lucide-angular";
+import { Workspace } from "@domain/models/workspace.model";
 import { WorkspaceStateService } from "@shared/workspace-state-service";
 import { RouterLink } from "@angular/router";
 import { InitialLettersPipe } from "@application/initial-letters-pipe";
@@ -17,11 +17,13 @@ import { InitialLettersPipe } from "@application/initial-letters-pipe";
 })
 export class Aside {
     readonly isAsideOpen = input.required<boolean>();
-    readonly workspaces = input.required<Workspaces[]>();
+    readonly workspaces = input.required<Workspace[]>();
     readonly toggleAside = output();
+    readonly createWorkspace = output<void>();
 
     protected readonly ArrowLeft = ArrowLeft;
     protected readonly ArrowRight = ArrowRight;
+    protected readonly Plus = Plus;
 
     private readonly workspaceState = inject(WorkspaceStateService);
     protected readonly selectedWorkspaceId = this.workspaceState.selectedWorkspaceId;
@@ -32,5 +34,9 @@ export class Aside {
 
     onToggleAside(): void {
         this.toggleAside.emit();
+    }
+
+    onCreateWorkspace(): void {
+        this.createWorkspace.emit();
     }
 }

@@ -1,11 +1,28 @@
 <main [class]="asideOpen() ? 'asideOpen' : 'asideClose'" class="main">
-    @if (workspaces$ | async; as workspaces) {
-    <app-aside (toggleAside)="toggleAside()" [isAsideOpen]="asideOpen()" [workspaces]="workspaces" />
+    @if (workspaces(); as workspaces) {
+    <app-aside
+        (createWorkspace)="openWorkspaceCreate()"
+        (toggleAside)="toggleAside()"
+        [isAsideOpen]="asideOpen()"
+        [workspaces]="workspaces"
+    />
     }
 
-    <app-header />
+    <app-header (createColumn)="openColumnCreate()" (manageStatus)="openStatusManage()" [workspaceName]="workspaceName()" />
 
     @if (workspace(); as workspace) {
-    <app-workspace [workspaces]="workspace" />
+    <app-workspace (createColumn)="openColumnCreate()" [workspace]="workspace" />
     }
 </main>
+
+@if (showColumnCreate() && workspace(); as workspace) {
+<app-column-create (closed)="closeColumnCreate()" [workspaceId]="workspace.id" />
+}
+
+@if (showWorkspaceCreate()) {
+<app-workspace-create (closed)="closeWorkspaceCreate()" />
+}
+
+@if (showStatusManage() && workspace(); as workspace) {
+<app-status-manage (closed)="closeStatusManage()" [workspaceId]="workspace.id" />
+}

@@ -1,0 +1,88 @@
+<!-- signin.html -->
+<div class="signin-container">
+    <h2>Connexion</h2>
+
+    <!-- ✅ Monitoring des tokens -->
+    <div class="token-monitor">
+        <h3>Token Monitor</h3>
+
+        @if (authService.currentToken(); as current) {
+            <!-- Token actuel -->
+            <div [class.refreshed]="authService.tokenRefreshed()" class="token-box current">
+                <div class="token-header">
+                    <span class="label">Token Actuel</span>
+                    @if (authService.tokenRefreshed()) {
+                        <span class="badge refreshed">🔄 REFRESHED!</span>
+                    }
+                    <span [class]="tokenStatus()" class="badge">
+                        {{ tokenStatus() === 'ok' ? '✅' : tokenStatus() === 'warning' ? '⚠️' : '🔴' }}
+                        {{ timeLeftFormatted() }}
+                    </span>
+                </div>
+                <div class="token-content">
+                    <code>{{ current.token }}</code>
+                </div>
+                <div class="token-info">
+                    <div>Émis: {{ current.issuedAt | date:'HH:mm:ss' }}</div>
+                    <div>Expire: {{ current.expiresAt | date:'HH:mm:ss' }}</div>
+                </div>
+            </div>
+
+            <!-- Token précédent -->
+            @if (authService.previousToken(); as previous) {
+                <div class="token-box previous">
+                    <div class="token-header">
+                        <span class="label">Token Précédent</span>
+                        <span class="badge expired">EXPIRÉ</span>
+                    </div>
+                    <div class="token-content">
+                        <code>{{ formatToken(previous.token) }}</code>
+                    </div>
+                    <div class="token-info">
+                        <div>Émis: {{ previous.issuedAt | date:'HH:mm:ss' }}</div>
+                        <div>Expiré: {{ previous.expiresAt | date:'HH:mm:ss' }}</div>
+                    </div>
+                </div>
+            }
+        } @else {
+            <div class="token-box empty">
+                <p>Aucun token actif - Connectez-vous</p>
+            </div>
+        }
+    </div>
+
+    <!-- Formulaire de connexion -->
+    @if (!otpSent()) {
+        <form (ngSubmit)="sendOtp()" [formGroup]="emailForm">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input formControlName="email" id="email" type="email">
+            </div>
+            <button [disabled]="emailForm.invalid" type="submit">
+                Recevoir le code
+            </button>
+        </form>
+    } @else {
+        <form (ngSubmit)="verifyOtp()" [formGroup]="otpForm">
+            <p>Code envoyé à {{ emailForm.value.email }}</p>
+
+            <div class="form-group">
+                <label for="otp">Code de vérification</label>
+                <input
+                    formControlName="otp"
+                    id="otp"
+                    maxlength="6"
+                    placeholder="123456"
+                    type="text">
+            </div>
+
+            <button [disabled]="otpForm.invalid" type="submit">
+                Se connecter
+            </button>
+
+            <button (click)="resetForm()" type="button">
+                Modifier l'email
+            </button>
+        </form>
+    }
+</div>

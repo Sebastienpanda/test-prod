@@ -1,11 +1,40 @@
+import { inject, Injectable } from "@angular/core";
 import type { Observable } from "rxjs";
-import type { Columns } from "@domain/models/kanban-columns.model";
-import type { ColumnsGateway, ReorderColumnDto } from "@domain/gateways/columns.gateway";
+import { tap } from "rxjs";
+import type { Column } from "@domain/models/column.model";
+import type {
+    ColumnsGateway,
+    CreateColumnDto,
+    ReorderColumnDto,
+    UpdateColumnDto,
+} from "@domain/gateways/columns.gateway";
+import { COLUMNS_GATEWAY } from "@application/tokens";
 
+@Injectable({
+    providedIn: "root",
+})
 export class ColumnsUseCase {
-    constructor(private readonly gateway: ColumnsGateway) {}
+    private readonly gateway = inject(COLUMNS_GATEWAY);
 
-    reorder(columnId: string, dto: ReorderColumnDto): Observable<Columns> {
-        return this.gateway.reorder(columnId, dto);
+    getColumn(id: string): Observable<Column> {
+        return this.gateway.getColumn(id);
+    }
+
+    createColumn(dto: CreateColumnDto): Observable<Column> {
+        return this.gateway.createColumn(dto).pipe(
+            tap((column) => console.log("[ColumnsUseCase] Column created:", column)),
+        );
+    }
+
+    updateColumn(id: string, dto: UpdateColumnDto): Observable<Column> {
+        return this.gateway.updateColumn(id, dto).pipe(
+            tap((column) => console.log("[ColumnsUseCase] Column updated:", column)),
+        );
+    }
+
+    reorderColumn(id: string, dto: ReorderColumnDto): Observable<Column> {
+        return this.gateway.reorderColumn(id, dto).pipe(
+            tap((column) => console.log("[ColumnsUseCase] Column reordered:", column)),
+        );
     }
 }

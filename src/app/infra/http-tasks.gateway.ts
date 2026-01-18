@@ -1,22 +1,32 @@
 import { inject } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import type { Observable } from "rxjs";
-import type { Tasks } from "@domain/models/kanban-tasks.model";
-import type { CreateTaskDto, ReorderTaskDto, TasksGateway } from "@domain/gateways/tasks.gateway";
+import type {
+    CreateTaskDto,
+    ReorderTaskDto,
+    TasksGateway,
+    UpdateTaskDto,
+} from "@domain/gateways/tasks.gateway";
+import type { Task } from "@domain/models/task.model";
 import { environment } from "@environments/environment";
 
 export class HttpTasksGateway implements TasksGateway {
     private readonly http = inject(HttpClient);
+    private readonly baseUrl = `${environment.apiUrl}/tasks`;
 
-    create(task: CreateTaskDto): Observable<Tasks> {
-        return this.http.post<Tasks>(`${environment.apiUrl}/tasks`, task);
+    getTask(id: string): Observable<Task> {
+        return this.http.get<Task>(`${this.baseUrl}/${id}`);
     }
 
-    update(task: Tasks): Observable<Tasks> {
-        return this.http.patch<Tasks>(`${environment.apiUrl}/tasks/${task.id}`, task);
+    createTask(dto: CreateTaskDto): Observable<Task> {
+        return this.http.post<Task>(this.baseUrl, dto);
     }
 
-    reorder(taskId: string, dto: ReorderTaskDto): Observable<Tasks> {
-        return this.http.patch<Tasks>(`${environment.apiUrl}/tasks/${taskId}/reorder`, dto);
+    updateTask(id: string, dto: UpdateTaskDto): Observable<Task> {
+        return this.http.patch<Task>(`${this.baseUrl}/${id}`, dto);
+    }
+
+    reorderTask(id: string, dto: ReorderTaskDto): Observable<Task> {
+        return this.http.patch<Task>(`${this.baseUrl}/${id}/reorder`, dto);
     }
 }

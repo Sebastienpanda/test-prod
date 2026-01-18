@@ -2,14 +2,15 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, OnDestroy
 import { Aside } from "@shared/ui/aside/aside";
 import { Header } from "@shared/ui/header/header";
 import { Workspace } from "@application/workspaces/workspace";
-import { WorkspacesUseCase } from "@domain/use-cases/workspaces.use-case";
-import { ALL_WORKSPACES_GATEWAY, FIND_ONE_WORKSPACE_GATEWAY } from "@application/tokens";
-import { AsyncPipe } from "@angular/common";
+import { USER_GATEWAY } from "@application/tokens";
 import { WorkspaceStateService } from "@shared/workspace-state-service";
-import { toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { of, switchMap } from "rxjs";
 import { SocketService } from "@shared/services/socket.service";
+import { ColumnCreate } from "@shared/ui/modal/column-create/column-create";
+import { WorkspaceCreate } from "@shared/ui/modal/workspace-create/workspace-create";
+import { StatusManage } from "@shared/ui/modal/status-manage/status-manage";
+import type { UserData } from "@domain/models/user-data.model";
 import {
+    applyColumnCreated,
     applyColumnReordered,
     applyTaskCreated,
     applyTaskReordered,
@@ -19,48 +20,62 @@ import {
 
 @Component({
     selector: "app-kanban-board",
-    imports: [Aside, Header, Workspace, AsyncPipe],
+    imports: [Aside, Header, Workspace, ColumnCreate, WorkspaceCreate, StatusManage],
     templateUrl: "./kanban-board.html",
     styleUrl: "./kanban-board.css",
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class KanbanBoard implements OnInit, OnDestroy {
     readonly asideOpen = signal(false);
-    protected readonly workspaces$ = new WorkspacesUseCase(inject(ALL_WORKSPACES_GATEWAY)).findAll();
-    private readonly findOneUseCase = new WorkspacesUseCase(inject(FIND_ONE_WORKSPACE_GATEWAY));
+    protected readonly showColumnCreate = signal(false);
+    protected readonly showWorkspaceCreate = signal(false);
+    protected readonly showStatusManage = signal(false);
+    private readonly userGateway = inject(USER_GATEWAY);
     private readonly workspaceState = inject(WorkspaceStateService);
     private readonly socketService = inject(SocketService);
-    private readonly workspacesSignal = toSignal(this.workspaces$);
-
-    private readonly workspace$ = toObservable(this.workspaceState.selectedWorkspaceId).pipe(
-        switchMap((id) => (id ? this.findOneUseCase.findOne(id) : of(null))),
-    );
-
-    private readonly baseWorkspace = toSignal(this.workspace$);
-
     protected readonly workspace = computed(() => {
-        const base = this.baseWorkspace();
-        if (!base) return null;
+        const workspaces = this.workspaces();
+        const selectedId = this.workspaceState.selectedWorkspaceId();
 
+        if (!selectedId) return null;
+
+        let workspace = workspaces.find((w) => w.id === selectedId) ?? null;
+        if (!workspace) return null;
+
+        // Appliquer toutes les transformations socket
         const newTask = this.socketService.taskCreated();
         const updatedTask = this.socketService.taskUpdated();
         const reorderedTask = this.socketService.taskReordered();
         const statusChangedTask = this.socketService.taskStatusChanged();
+        const newColumn = this.socketService.columnCreated();
         const reorderedColumn = this.socketService.columnReordered();
 
-        let result = base;
-        if (newTask) result = applyTaskCreated(result, newTask);
-        if (updatedTask) result = applyTaskUpdated(result, updatedTask);
-        if (reorderedTask) result = applyTaskReordered(result, reorderedTask);
-        if (statusChangedTask) result = applyTaskStatusChanged(result, statusChangedTask);
-        if (reorderedColumn) result = applyColumnReordered(result, reorderedColumn);
+        if (newTask) workspace = applyTaskCreated(workspace, newTask);
+        if (updatedTask) workspace = applyTaskUpdated(workspace, updatedTask);
+        if (reorderedTask) workspace = applyTaskReordered(workspace, reorderedTask);
+        if (statusChangedTask) workspace = applyTaskStatusChanged(workspace, statusChangedTask);
+        if (newColumn) workspace = applyColumnCreated(workspace, newColumn);
+        if (reorderedColumn) workspace = applyColumnReordered(workspace, reorderedColumn);
 
-        return result;
+        return workspace;
+    });
+    protected readonly workspaceName = computed(() => this.workspace()?.name);
+    private readonly baseUserData = signal<UserData | undefined>(undefined);
+    protected readonly workspaces = computed(() => {
+        const base = this.baseUserData()?.workspaces ?? [];
+        const newWorkspace = this.socketService.workspaceCreated();
+
+        if (!newWorkspace) return base;
+
+        const exists = base.some((w) => w.id === newWorkspace.id);
+        if (exists) return base;
+
+        return [...base, newWorkspace];
     });
 
     constructor() {
         effect(() => {
-            const workspaces = this.workspacesSignal();
+            const workspaces = this.workspaces();
             const selectedId = this.workspaceState.selectedWorkspaceId();
 
             if (!selectedId && workspaces && workspaces.length > 0) {
@@ -70,14 +85,41 @@ export class KanbanBoard implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        this.socketService.connect();
+        void this.socketService.connect();
+        this.userGateway.getUserData().subscribe((data) => {
+            this.baseUserData.set(data);
+        });
     }
 
     ngOnDestroy(): void {
         this.socketService.disconnect();
     }
 
-    toggleAside() {
+    toggleAside(): void {
         this.asideOpen.update((v) => !v);
+    }
+
+    openColumnCreate(): void {
+        this.showColumnCreate.set(true);
+    }
+
+    closeColumnCreate(): void {
+        this.showColumnCreate.set(false);
+    }
+
+    openWorkspaceCreate(): void {
+        this.showWorkspaceCreate.set(true);
+    }
+
+    closeWorkspaceCreate(): void {
+        this.showWorkspaceCreate.set(false);
+    }
+
+    openStatusManage(): void {
+        this.showStatusManage.set(true);
+    }
+
+    closeStatusManage(): void {
+        this.showStatusManage.set(false);
     }
 }

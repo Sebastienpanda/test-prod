@@ -1,15 +1,33 @@
-import { WorkspacesGateway } from "@domain/gateways/workspaces.gateway";
-import { Observable } from "rxjs";
-import { Workspaces } from "@domain/models/kanban-workspaces.model";
+import { inject, Injectable } from "@angular/core";
+import type { Observable } from "rxjs";
+import { tap } from "rxjs";
+import type { Workspace } from "@domain/models/workspace.model";
+import type {
+    CreateWorkspaceDto,
+    UpdateWorkspaceDto,
+    WorkspacesGateway,
+} from "@domain/gateways/workspaces.gateway";
+import { WORKSPACES_GATEWAY } from "@application/tokens";
 
+@Injectable({
+    providedIn: "root",
+})
 export class WorkspacesUseCase {
-    constructor(private readonly _gateway: WorkspacesGateway) {}
+    private readonly gateway = inject(WORKSPACES_GATEWAY);
 
-    findAll(): Observable<Workspaces[]> {
-        return this._gateway.findAll();
+    getWorkspace(id: string): Observable<Workspace> {
+        return this.gateway.getWorkspace(id);
     }
 
-    findOne(id: string): Observable<Workspaces> {
-        return this._gateway.findOne(id);
+    createWorkspace(dto: CreateWorkspaceDto): Observable<Workspace> {
+        return this.gateway.createWorkspace(dto).pipe(
+            tap((workspace) => console.log("[WorkspacesUseCase] Workspace created:", workspace)),
+        );
+    }
+
+    updateWorkspace(id: string, dto: UpdateWorkspaceDto): Observable<Workspace> {
+        return this.gateway.updateWorkspace(id, dto).pipe(
+            tap((workspace) => console.log("[WorkspacesUseCase] Workspace updated:", workspace)),
+        );
     }
 }

@@ -8,11 +8,16 @@ import {
     output,
     viewChild,
 } from "@angular/core";
-import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { map, startWith } from "rxjs";
 import { LucideAngularModule, TextAlignStart } from "lucide-angular";
-import { type Status, STATUS_OPTIONS } from "@domain/models/kanban-tasks.model";
+import { taskDescriptionSchema, taskTitleSchema } from "@domain/validators/task.schema";
+import type { Status } from "@domain/models/status.model";
 import { ButtonDirective } from "@shared/ui/directives/button.directive";
+import { zodFieldValidator } from "@shared/validators/zod.validator";
+import { FormError } from "@shared/ui/form-error/form-error";
+import { StatusSelect } from "@shared/ui/status-select/status-select";
 import { Modal } from "../modal";
 import { ModalService } from "../modal.service";
 
@@ -32,6 +37,7 @@ import { ModalService } from "../modal.service";
                         placeholder="Titre de la tâche"
                         type="text"
                     />
+                    <app-form-error [control]="form.controls.title" />
                 </div>
 
                 <div class="field">
@@ -46,21 +52,21 @@ import { ModalService } from "../modal.service";
                         placeholder="Ajouter une description..."
                         rows="4"
                     ></textarea>
+                    <app-form-error [control]="form.controls.description" />
                 </div>
 
                 <div class="field">
-                    <label class="field-label" for="status">Statut</label>
-                    <select formControlName="status" class="field-select" id="status">
-                        @for (option of statusOptions; track option.value) {
-                            <option [value]="option.value">{{ option.label }}</option>
-                        }
-                    </select>
+                    <label class="field-label" for="statusId">Statut</label>
+                    <app-status-select
+                        formControlName="statusId"
+                        [options]="statusOptions()"
+                    ></app-status-select>
                 </div>
             </form>
 
             <footer class="footer">
                 <button (click)="close()" appBtn type="button">Annuler</button>
-                <button (click)="onCreate()" [disabled]="form.invalid" appBtn type="button" variant="primary">
+                <button (click)="onCreate()" [disabled]="isInvalid()" appBtn type="button" variant="primary">
                     Créer
                 </button>
             </footer>
@@ -68,22 +74,29 @@ import { ModalService } from "../modal.service";
     `,
     styleUrl: "./task-create.css",
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [Modal, ReactiveFormsModule, LucideAngularModule, ButtonDirective],
+    imports: [Modal, ReactiveFormsModule, LucideAngularModule, ButtonDirective, FormError, StatusSelect],
 })
 export class TaskCreate {
     readonly columnId = input.required<string>();
-    readonly initialStatus = input<Status>("todo");
+    readonly statusOptions = input.required<Status[]>();
+    readonly initialStatusId = input.required<string>();
     readonly closed = output<void>();
     protected readonly DescriptionIcon = TextAlignStart;
-    protected readonly statusOptions = STATUS_OPTIONS;
     private readonly modalService = inject(ModalService);
     private readonly destroyRef = inject(DestroyRef);
     private readonly fb = inject(FormBuilder);
     protected readonly form = this.fb.nonNullable.group({
-        title: ["", Validators.required],
-        description: [""],
-        status: ["todo" as Status],
+        title: ["", [zodFieldValidator(taskTitleSchema)]],
+        description: ["", [zodFieldValidator(taskDescriptionSchema)]],
+        statusId: [""],
     });
+    protected readonly isInvalid = toSignal(
+        this.form.statusChanges.pipe(
+            startWith(this.form.status),
+            map(() => this.form.invalid),
+        ),
+        { initialValue: true },
+    );
     private readonly modal = viewChild.required<Modal>("modal");
 
     constructor() {
@@ -93,7 +106,8 @@ export class TaskCreate {
     }
 
     open(): void {
-        this.form.reset({ title: "", description: "", status: this.initialStatus() });
+        this.form.reset({ title: "", description: "", statusId: this.initialStatusId() });
+        this.form.updateValueAndValidity();
         this.modal().open();
     }
 
@@ -102,11 +116,15 @@ export class TaskCreate {
     }
 
     protected onCreate(): void {
+        this.form.markAllAsTouched();
+
         if (this.form.valid) {
             const formValue = this.form.getRawValue();
             this.modalService
                 .createTask({
-                    ...formValue,
+                    title: formValue.title.trim(),
+                    description: formValue.description.trim(),
+                    statusId: formValue.statusId,
                     columnId: this.columnId(),
                 })
                 .pipe(takeUntilDestroyed(this.destroyRef))

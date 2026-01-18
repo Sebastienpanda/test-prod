@@ -1,19 +1,40 @@
+import { inject, Injectable } from "@angular/core";
 import type { Observable } from "rxjs";
-import type { Tasks } from "@domain/models/kanban-tasks.model";
-import type { CreateTaskDto, ReorderTaskDto, TasksGateway } from "@domain/gateways/tasks.gateway";
+import { tap } from "rxjs";
+import type { Task } from "@domain/models/task.model";
+import type {
+    CreateTaskDto,
+    ReorderTaskDto,
+    TasksGateway,
+    UpdateTaskDto,
+} from "@domain/gateways/tasks.gateway";
+import { TASKS_GATEWAY } from "@application/tokens";
 
+@Injectable({
+    providedIn: "root",
+})
 export class TasksUseCase {
-    constructor(private readonly gateway: TasksGateway) {}
+    private readonly gateway = inject(TASKS_GATEWAY);
 
-    create(task: CreateTaskDto): Observable<Tasks> {
-        return this.gateway.create(task);
+    getTask(id: string): Observable<Task> {
+        return this.gateway.getTask(id);
     }
 
-    update(task: Tasks): Observable<Tasks> {
-        return this.gateway.update(task);
+    createTask(dto: CreateTaskDto): Observable<Task> {
+        return this.gateway.createTask(dto).pipe(
+            tap((task) => console.log("[TasksUseCase] Task created:", task)),
+        );
     }
 
-    reorder(taskId: string, dto: ReorderTaskDto): Observable<Tasks> {
-        return this.gateway.reorder(taskId, dto);
+    updateTask(id: string, dto: UpdateTaskDto): Observable<Task> {
+        return this.gateway.updateTask(id, dto).pipe(
+            tap((task) => console.log("[TasksUseCase] Task updated:", task)),
+        );
+    }
+
+    reorderTask(id: string, dto: ReorderTaskDto): Observable<Task> {
+        return this.gateway.reorderTask(id, dto).pipe(
+            tap((task) => console.log("[TasksUseCase] Task reordered:", task)),
+        );
     }
 }

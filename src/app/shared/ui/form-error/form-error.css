@@ -1,0 +1,8 @@
+.error {
+  overflow: hidden;
+
+  span {
+    color: var(--color-error);
+    margin-top: 1rem;
+  }
+}

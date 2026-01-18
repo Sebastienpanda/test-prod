@@ -18,11 +18,10 @@
 
     <div class="field">
         <span class="field-label">Statut</span>
-        <select [formControl]="form.controls.status" class="field-select">
-            @for (option of statusOptions; track option.value) {
-            <option [value]="option.value">{{ option.label }}</option>
-            }
-        </select>
+        <app-status-select
+            [formControl]="form.controls.statusId"
+            [options]="statusOptions()"
+        ></app-status-select>
     </div>
 </div>
 

@@ -1,64 +1,76 @@
-<section
-    (cdkDropListDropped)="dropColumn($event)"
-    [cdkDropListData]="workspaces().columns"
-    cdkDropList
-    cdkDropListOrientation="horizontal"
-    cdkScrollable
-    class="kanban"
->
-    @for (column of workspaces().columns; track column.id; let i = $index) {
-    <div cdkDrag class="card">
-        <div cdkDragHandle class="header">
-            <h2>{{ column.name }}</h2>
-            @if (column.name !== 'Terminé') {
-            <app-context-menu>
-                <button appBadge aria-label="Options de la colonne" trigger type="button">
-                    <lucide-icon [img]="Ellipsis" />
-                </button>
-                <div menu>
-                    <app-menu-item (click)="openTaskCreate(column)">
-                        <lucide-icon [img]="PlusIcon" size="16" />
-                        Créer une tâche
-                    </app-menu-item>
-                </div>
-            </app-context-menu>
-            }
-        </div>
-        <ul
-            (cdkDropListDropped)="drop($event)"
-            [cdkDropListConnectedTo]="connectedLists()"
-            [cdkDropListData]="column.tasks"
-            [id]="'tasks-list-' + i"
-            cdkDropList
-            class="list"
-        >
-            @for (item of column.tasks; track item.id) {
-            <li cdkDrag class="item">
-                <button
-                    (click)="openTaskDetail(item)"
-                    [attr.aria-label]="'Ouvrir les détails : ' + item.title"
-                    class="item-button"
-                    type="button"
-                >
-                    <div class="item-linear"></div>
-                    <span class="item-title">{{ item.title }}</span>
-                </button>
-            </li>
-            } @empty {
-            <div class="empty">
-                <p>Aucune tâche</p>
-                @if (column.name !== 'Terminé') {
-                <button (click)="openTaskCreate(column)" type="button">Créer une tâche</button>
-                }
-            </div>
-            }
-        </ul>
+@if (hasNoColumns()) {
+    <div class="empty-state">
+        <lucide-icon [img]="PlusIcon" size="48"/>
+        <h2>Aucune colonne</h2>
+        <p>Commencez par créer une colonne pour organiser vos tâches</p>
+        <button (click)="onCreateColumn()" appBtn type="button" variant="primary">Créer une colonne</button>
     </div>
-    }
-</section>
+} @else {
+    <section
+        (cdkDropListDropped)="dropColumn($event)"
+        [cdkDropListData]="columns()"
+        cdkDropList
+        cdkDropListOrientation="horizontal"
+        cdkScrollable
+        class="kanban"
+    >
+        @for (column of columns(); track column.id; let i = $index) {
+            <div [cdkDragData]="column" cdkDrag class="card">
+                <div cdkDragHandle class="header">
+                    <h2>{{ column.name }}</h2>
+                    @if (column.name !== 'Terminé') {
+                        <app-context-menu>
+                            <button appBadge aria-label="Options de la colonne" trigger type="button">
+                                <lucide-icon [img]="Ellipsis"/>
+                            </button>
+                            <div menu>
+                                <app-menu-item (click)="openTaskCreate(column)">
+                                    <lucide-icon [img]="PlusIcon" size="16"/>
+                                    Créer une tâche
+                                </app-menu-item>
+                            </div>
+                        </app-context-menu>
+                    }
+                </div>
+                <ul
+                    (cdkDropListDropped)="drop($event)"
+                    [cdkDropListConnectedTo]="connectedLists()"
+                    [cdkDropListData]="column.tasks"
+                    [id]="column.id"
+                    cdkDropList
+                    class="list"
+                >
+                    @for (item of column.tasks; track item.id) {
+                        <li [cdkDragData]="item" cdkDrag class="item">
+                            <button
+                                (click)="openTaskDetail(item)"
+                                [attr.aria-label]="'Ouvrir les détails : ' + item.title"
+                                class="item-button"
+                                type="button"
+                            >
+                                <div class="item-linear"></div>
+                                <span class="item-title">{{ item.title }}</span>
+                            </button>
+                        </li>
+                    } @empty {
+                        <div class="empty">
+                            <p>Aucune tâche</p>
+                            @if (column.name !== 'Terminé') {
+                                <button (click)="openTaskCreate(column)" appBtn type="button" variant="primary">Créer
+                                    une tâche
+                                </button>
+                            }
+                        </div>
+                    }
+                </ul>
+            </div>
+        }
+    </section>
+}
 
 @if (selectedTask(); as task) {
-<app-task-detail #taskDetailModal (closed)="onTaskDetailClosed()" [task]="task" />
-} @if (selectedColumn(); as column) {
-<app-task-create (closed)="onTaskCreateClosed()" [columnId]="column.id" [initialStatus]="initialStatus()" />
+    <app-task-detail #taskDetailModal (closed)="onTaskDetailClosed()" [task]="task" [statusOptions]="statuses()"/>
+}
+@if (selectedColumn(); as column) {
+    <app-task-create (closed)="onTaskCreateClosed()" [columnId]="column.id" [initialStatusId]="initialStatusId()" [statusOptions]="statuses()"/>
 }

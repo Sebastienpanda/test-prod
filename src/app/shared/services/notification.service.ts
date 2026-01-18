@@ -38,7 +38,15 @@ export class NotificationService {
         toast.info("Statut modifié", { description: `${title} → ${label}` });
     }
 
+    columnCreated(name: string): void {
+        toast.success("Colonne créée", { description: name });
+    }
+
     columnMoved(name: string): void {
         toast.info("Colonne déplacée", { description: name });
+    }
+
+    workspaceCreated(name: string): void {
+        toast.success("Workspace créé", { description: name });
     }
 }

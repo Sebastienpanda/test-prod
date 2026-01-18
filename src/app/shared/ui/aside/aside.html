@@ -23,4 +23,10 @@
         </li>
         }
     </ul>
+    <button (click)="onCreateWorkspace()" [title]="isAsideOpen() ? '' : 'Nouveau workspace'" class="create-workspace-btn">
+        <lucide-icon [img]="Plus" size="18" />
+        @if (isAsideOpen()) {
+        <span>Nouveau workspace</span>
+        }
+    </button>
 </aside>

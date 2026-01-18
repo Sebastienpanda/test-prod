@@ -6,21 +6,22 @@ import {
     moveItemInArray,
     transferArrayItem,
 } from "@angular/cdk/drag-drop";
-import { Component, computed, DestroyRef, inject, input, signal } from "@angular/core";
+import { Component, computed, DestroyRef, effect, inject, input, OnInit, output, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { CdkScrollable } from "@angular/cdk/overlay";
 import { Ellipsis, LucideAngularModule, Plus } from "lucide-angular";
-import type { Columns } from "@domain/models/kanban-columns.model";
-import { getStatusFromColumnName, type Tasks } from "@domain/models/kanban-tasks.model";
-import type { Workspaces } from "@domain/models/kanban-workspaces.model";
+import type { Column } from "@domain/models/column.model";
+import type { Task } from "@domain/models/task.model";
+import type { Workspace as WorkspaceModel } from "@domain/models/workspace.model";
+import type { Status } from "@domain/models/status.model";
 import { BadgeDirective } from "@shared/ui/directives/badge.directive";
 import { ContextMenu } from "@shared/ui/context-menu/context-menu";
 import { MenuItem } from "@shared/ui/context-menu/menu-item";
 import { TaskDetail } from "@shared/ui/modal/task-detail/task-detail";
 import { TaskCreate } from "@shared/ui/modal/task-create/task-create";
-import { TasksUseCase } from "@domain/use-cases/tasks.use-case";
-import { ColumnsUseCase } from "@domain/use-cases/columns.use-case";
-import { COLUMNS_GATEWAY, TASKS_GATEWAY } from "@application/tokens";
+import { USER_GATEWAY } from "@application/tokens";
+import { ButtonDirective } from "@shared/ui/directives/button.directive";
+import { debounceTime, Subject } from 'rxjs';
 
 @Component({
     selector: "app-workspace",
@@ -37,86 +38,117 @@ import { COLUMNS_GATEWAY, TASKS_GATEWAY } from "@application/tokens";
         MenuItem,
         TaskDetail,
         TaskCreate,
+        ButtonDirective,
     ],
     host: {
         class: "kanban-grid",
     },
 })
-export class Workspace {
-    readonly workspaces = input.required<Workspaces>();
+export class Workspace implements OnInit {
+    readonly workspace = input.required<WorkspaceModel>();
+    readonly createColumn = output<void>();
 
-    private readonly tasksUseCase = new TasksUseCase(inject(TASKS_GATEWAY));
-    private readonly columnsUseCase = new ColumnsUseCase(inject(COLUMNS_GATEWAY));
-    private readonly destroyRef = inject(DestroyRef);
-
-    protected readonly connectedLists = computed(() =>
-        this.workspaces().columns.map((_, index) => `tasks-list-${index}`),
+    protected readonly hasNoColumns = computed(() => this.workspace().columns.length === 0);
+    protected readonly columns = signal<Column[]>([]);
+    protected readonly connectedLists = computed<string[]>(() =>
+        this.columns().map(column => column.id)
     );
-
     protected readonly Ellipsis = Ellipsis;
     protected readonly PlusIcon = Plus;
+    protected readonly selectedColumn = signal<Column | null>(null);
 
+    // Statuses directement depuis workspace (plus besoin d'appel séparé)
+    protected readonly statuses = computed(() => this.workspace().statuses);
+    protected readonly initialStatusId = computed(() => {
+        const statusList = this.statuses();
+        return statusList.length > 0 ? statusList[0].id : "";
+    });
+
+    private reorderSubject = new Subject<{
+        taskId: string;
+        newOrder: number;
+        newColumnId?: string;
+    }>();
+    private readonly userGateway = inject(USER_GATEWAY);
+    private readonly destroyRef = inject(DestroyRef);
     private readonly selectedTaskId = signal<string | null>(null);
-    protected readonly selectedColumn = signal<Columns | null>(null);
-
     protected readonly selectedTask = computed(() => {
         const taskId = this.selectedTaskId();
         if (!taskId) return null;
 
-        for (const column of this.workspaces().columns) {
+        for (const column of this.workspace().columns) {
             const task = column.tasks.find((t) => t.id === taskId);
             if (task) return task;
         }
         return null;
     });
 
-    protected readonly initialStatus = computed(() => {
-        const column = this.selectedColumn();
-        return column ? getStatusFromColumnName(column.name) : "todo";
-    });
+    constructor() {
+        // Mettre à jour les colonnes quand le workspace change
+        effect(() => {
+            const workspace = this.workspace();
+            this.columns.set(structuredClone(workspace.columns));
+        });
+    }
 
-    dropColumn(event: CdkDragDrop<Columns[]>): void {
-        const column = event.container.data[event.previousIndex];
+    ngOnInit() {
+        this.reorderSubject
+            .pipe(debounceTime(250), takeUntilDestroyed(this.destroyRef))
+            .subscribe(({taskId, newOrder, newColumnId}) => {
+                this.userGateway
+                    .reorderTask(taskId, {newOrder, newColumnId})
+                    .pipe(takeUntilDestroyed(this.destroyRef))
+                    .subscribe();
+            });
+    }
+
+    dropColumn(event: CdkDragDrop<Column[]>): void {
+        const column = event.item.data
         moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
 
-        this.columnsUseCase
-            .reorder(column.id, { newPosition: event.currentIndex })
+        this.userGateway
+            .reorderColumn(column.id, {newPosition: event.currentIndex})
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe();
     }
 
-    drop(event: CdkDragDrop<Tasks[]>): void {
-        const task = event.previousContainer.data[event.previousIndex];
-        const isSameColumn = event.previousContainer === event.container;
-
-        if (isSameColumn) {
-            moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+    drop(event: CdkDragDrop<Task[]>): void {
+        if (event.previousContainer === event.container) {
+            moveItemInArray(
+                event.container.data,
+                event.previousIndex,
+                event.currentIndex
+            );
         } else {
             transferArrayItem(
                 event.previousContainer.data,
                 event.container.data,
                 event.previousIndex,
-                event.currentIndex,
+                event.currentIndex
             );
         }
 
-        const columnIndex = parseInt(event.container.id.replace("tasks-list-", ""), 10);
-        const targetColumn = this.workspaces().columns[columnIndex];
+        const task = event.item.data
+        if (!task) return;
 
-        this.tasksUseCase
-            .reorder(task.id, {
-                newOrder: event.currentIndex,
-                newColumnId: isSameColumn ? undefined : targetColumn.id,
-            })
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe();
+        const targetColumn = this.columns().find(
+            c => c.tasks === event.container.data
+        );
+
+        this.reorderSubject.next({
+            taskId: task.id,
+            newOrder: event.currentIndex,
+            ...(event.previousContainer !== event.container && {
+                newColumnId: targetColumn?.id,
+            }),
+        });
     }
 
-    openTaskDetail(task: Tasks): void {
+    openTaskDetail(task: Task): void {
         this.selectedTaskId.set(task.id);
     }
 
-    openTaskCreate(column: Columns): void {
+    openTaskCreate(column: Column): void {
         this.selectedColumn.set(column);
     }
 
@@ -126,5 +158,9 @@ export class Workspace {
 
     protected onTaskCreateClosed(): void {
         this.selectedColumn.set(null);
+    }
+
+    protected onCreateColumn(): void {
+        this.createColumn.emit();
     }
 }

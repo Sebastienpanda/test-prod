@@ -1,0 +1,61 @@
+@if (status()) {
+    <div class="modal-overlay" (click)="close()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h2>Modifier le status</h2>
+                <button type="button" (click)="close()" class="close-button" aria-label="Fermer">
+                    <lucide-icon [img]="XIcon" [size]="20"></lucide-icon>
+                </button>
+            </div>
+
+            <form [formGroup]="form" (ngSubmit)="onSubmit()" class="modal-body">
+                <div class="form-group">
+                    <label for="status-name">Nom du status</label>
+                    <input
+                        id="status-name"
+                        type="text"
+                        formControlName="name"
+                        class="form-control"
+                        placeholder="Ex: À faire"
+                    />
+                    @if (form.controls.name.invalid && form.controls.name.touched) {
+                        <app-form-error [control]="form.controls.name"></app-form-error>
+                    }
+                </div>
+
+                <div class="form-group">
+                    <label>Couleur</label>
+                    <div class="color-grid">
+                        @for (colorOption of colors; track colorOption.key) {
+                            <button
+                                type="button"
+                                class="color-button"
+                                [class.selected]="selectedColorKey() === colorOption.key"
+                                [style.background-color]="themeService.isDark() ? colorOption.dark : colorOption.light"
+                                (click)="selectColor(colorOption)"
+                                [attr.aria-label]="'Sélectionner la couleur ' + colorOption.name"
+                            >
+                                @if (selectedColorKey() === colorOption.key) {
+                                    <lucide-icon [img]="CheckIcon" [size]="20" class="check-icon"></lucide-icon>
+                                }
+                            </button>
+                        }
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" button="secondary" (click)="close()">
+                        Annuler
+                    </button>
+                    <button type="submit" button="primary" [disabled]="form.invalid || isSubmitting()">
+                        @if (isSubmitting()) {
+                            Enregistrement...
+                        } @else {
+                            Enregistrer
+                        }
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+}

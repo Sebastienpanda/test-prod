@@ -1,7 +1,19 @@
 import type { Observable } from "rxjs";
-import type { Tasks } from "@domain/models/kanban-tasks.model";
+import type { Task } from "@domain/models/task.model";
 
-export type CreateTaskDto = Omit<Tasks, "id" | "createdAt" | "updatedAt" | "order">;
+export type CreateTaskDto = {
+    title: string;
+    description: string;
+    statusId: string;
+    columnId: string;
+};
+
+export type UpdateTaskDto = {
+    title?: string;
+    description?: string;
+    statusId?: string;
+    columnId?: string;
+};
 
 export type ReorderTaskDto = {
     newOrder: number;
@@ -9,7 +21,8 @@ export type ReorderTaskDto = {
 };
 
 export interface TasksGateway {
-    create(task: CreateTaskDto): Observable<Tasks>;
-    update(task: Tasks): Observable<Tasks>;
-    reorder(taskId: string, dto: ReorderTaskDto): Observable<Tasks>;
+    getTask(id: string): Observable<Task>;
+    createTask(dto: CreateTaskDto): Observable<Task>;
+    updateTask(id: string, dto: UpdateTaskDto): Observable<Task>;
+    reorderTask(id: string, dto: ReorderTaskDto): Observable<Task>;
 }

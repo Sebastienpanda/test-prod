@@ -1,0 +1,16 @@
+@if (workspaceId()) {
+    <div class="modal-overlay" (click)="close()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h2>Gestion des status</h2>
+                <button type="button" (click)="close()" class="close-button" aria-label="Fermer">
+                    <lucide-icon [img]="XIcon" [size]="20"></lucide-icon>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <app-status-list [workspaceId]="workspaceId()!"></app-status-list>
+            </div>
+        </div>
+    </div>
+}

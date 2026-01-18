@@ -1,0 +1,38 @@
+<div class="status-select">
+    <button
+        type="button"
+        class="select-trigger"
+        (click)="toggleDropdown()"
+        [attr.aria-expanded]="isOpen()"
+    >
+        <div class="selected-value">
+            @if (selectedStatus(); as status) {
+                <span class="status-circle" [style.background-color]="status.color"></span>
+                <span>{{ status.name }}</span>
+            } @else {
+                <span>Sélectionner un statut</span>
+            }
+        </div>
+        <lucide-icon [img]="ChevronDownIcon" [size]="16"></lucide-icon>
+    </button>
+
+    @if (isOpen()) {
+        <div class="dropdown-overlay" (click)="closeDropdown()"></div>
+        <div class="dropdown-menu">
+            @for (status of options(); track status.id) {
+                <button
+                    type="button"
+                    class="dropdown-item"
+                    [class.selected]="value() === status.id"
+                    (click)="selectStatus(status)"
+                >
+                    <span class="status-circle" [style.background-color]="status.color"></span>
+                    <span>{{ status.name }}</span>
+                    @if (value() === status.id) {
+                        <lucide-icon [img]="CheckIcon" [size]="16" class="check-icon"></lucide-icon>
+                    }
+                </button>
+            }
+        </div>
+    }
+</div>

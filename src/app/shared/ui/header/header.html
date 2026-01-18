@@ -1,16 +1,37 @@
 <header class="header">
-    <h1>Mon projet</h1>
-    <button
-        (click)="themeService.toggle()"
-        [attr.aria-label]="themeService.isDark() ? 'Passer en mode clair' : 'Passer en mode sombre'"
-        appBtn
-        class="group"
-        variant="circle"
-    >
-        @if (themeService.isDark()) {
-        <lucide-icon [img]="Sun" aria-hidden="true" size="20" />
-        } @else {
-        <lucide-icon [img]="Moon" aria-hidden="true" size="20" />
+    <h1>{{ workspaceName() ?? 'Mon projet' }}</h1>
+    <div class="actions">
+        @if (workspaceName()) {
+        <button
+            (click)="onCreateColumn()"
+            appBtn
+            aria-label="Créer une colonne"
+            variant="secondary"
+        >
+            <lucide-icon [img]="Plus" aria-hidden="true" size="16" />
+            <span>Nouvelle colonne</span>
+        </button>
+        <button
+            (click)="onManageStatus()"
+            appBtn
+            aria-label="Gérer les status"
+            variant="secondary"
+        >
+            <lucide-icon [img]="TagsIcon" aria-hidden="true" size="16" />
+            <span>Gérer les status</span>
+        </button>
         }
-    </button>
+        <button
+            (click)="themeService.toggle()"
+            [attr.aria-label]="themeService.isDark() ? 'Passer en mode clair' : 'Passer en mode sombre'"
+            appBtn
+            variant="circle"
+        >
+            @if (themeService.isDark()) {
+            <lucide-icon [img]="Sun" aria-hidden="true" size="20" />
+            } @else {
+            <lucide-icon [img]="Moon" aria-hidden="true" size="20" />
+            }
+        </button>
+    </div>
 </header>

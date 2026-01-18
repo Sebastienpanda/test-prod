@@ -5,24 +5,45 @@
     display: flex;
     height: 4.938rem;
     justify-content: space-between;
-    padding: 1.5rem;
+    padding: 0.75rem;
+
+    @media (min-width: 640px) {
+        padding: 1.5rem;
+    }
 
     h1 {
-        font-size: 1.125rem;
+        font-size: 1rem;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        max-width: 120px;
 
-        @media (width >= 64rem) {
+        @media (min-width: 640px) {
+            font-size: 1.125rem;
+            max-width: none;
+        }
+
+        @media (min-width: 1024px) {
             font-size: 1.5rem;
         }
     }
 
-    .group {
-        transition: rotate 350ms ease-in-out;
+    .actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
 
-        &:hover {
-            rotate: 12deg;
+        @media (min-width: 640px) {
+            gap: 0.75rem;
+        }
+
+        /* Cacher le texte des boutons sur mobile, garder uniquement les icônes */
+        button span {
+            display: none;
+
+            @media (min-width: 640px) {
+                display: inline;
+            }
         }
     }
 }

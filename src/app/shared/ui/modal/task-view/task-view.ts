@@ -1,8 +1,10 @@
 import { DatePipe } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, input, output } from "@angular/core";
-import { STATUS_OPTIONS, type Tasks } from "@domain/models/kanban-tasks.model";
+import type { Task } from "@domain/models/task.model";
+import type { Status } from "@domain/models/status.model";
 import { ButtonDirective } from "@shared/ui/directives/button.directive";
 import { Calendar, Clock, LucideAngularModule, Pencil, TextAlignStart } from "lucide-angular";
+import { getContrastTextColor } from "@shared/utils/color-contrast";
 
 @Component({
     selector: "app-task-view",
@@ -12,7 +14,8 @@ import { Calendar, Clock, LucideAngularModule, Pencil, TextAlignStart } from "lu
     imports: [DatePipe, LucideAngularModule, ButtonDirective],
 })
 export class TaskView {
-    readonly task = input.required<Tasks>();
+    readonly task = input.required<Task>();
+    readonly statusOptions = input.required<Status[]>();
     readonly edit = output<void>();
 
     protected readonly EditIcon = Pencil;
@@ -20,9 +23,22 @@ export class TaskView {
     protected readonly ClockIcon = Clock;
     protected readonly DescriptionIcon = TextAlignStart;
 
+    protected readonly currentStatus = computed(() => {
+        const statusId = this.task().statusId;
+        return this.statusOptions().find((s) => s.id === statusId);
+    });
+
     protected readonly statusLabel = computed(() => {
-        const status = this.task().status;
-        return STATUS_OPTIONS.find((s) => s.value === status)?.label ?? status;
+        return this.currentStatus()?.name ?? "Sans statut";
+    });
+
+    protected readonly statusColor = computed(() => {
+        return this.currentStatus()?.color ?? "var(--color-base-200)";
+    });
+
+    protected readonly statusTextColor = computed(() => {
+        const bgColor = this.currentStatus()?.color;
+        return bgColor ? getContrastTextColor(bgColor) : "#000000";
     });
 
     protected onEdit(): void {

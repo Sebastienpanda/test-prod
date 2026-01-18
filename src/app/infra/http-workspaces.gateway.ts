@@ -1,18 +1,27 @@
-import { WorkspacesGateway } from "@domain/gateways/workspaces.gateway";
 import { inject } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { Observable } from "rxjs";
-import { Workspaces } from "@domain/models/kanban-workspaces.model";
+import type { Observable } from "rxjs";
+import type {
+    CreateWorkspaceDto,
+    UpdateWorkspaceDto,
+    WorkspacesGateway,
+} from "@domain/gateways/workspaces.gateway";
+import type { Workspace } from "@domain/models/workspace.model";
 import { environment } from "@environments/environment";
 
 export class HttpWorkspacesGateway implements WorkspacesGateway {
-    protected readonly _http = inject(HttpClient);
+    private readonly http = inject(HttpClient);
+    private readonly baseUrl = `${environment.apiUrl}/workspaces`;
 
-    findAll(): Observable<Workspaces[]> {
-        return this._http.get<Workspaces[]>(`${environment.apiUrl}/workspaces`);
+    getWorkspace(id: string): Observable<Workspace> {
+        return this.http.get<Workspace>(`${this.baseUrl}/${id}`);
     }
 
-    findOne(id: string): Observable<Workspaces> {
-        return this._http.get<Workspaces>(`${environment.apiUrl}/workspaces/${id}`);
+    createWorkspace(dto: CreateWorkspaceDto): Observable<Workspace> {
+        return this.http.post<Workspace>(this.baseUrl, dto);
+    }
+
+    updateWorkspace(id: string, dto: UpdateWorkspaceDto): Observable<Workspace> {
+        return this.http.patch<Workspace>(`${this.baseUrl}/${id}`, dto);
     }
 }
