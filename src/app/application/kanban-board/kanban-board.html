@@ -1,28 +1,37 @@
-<main [class]="asideOpen() ? 'asideOpen' : 'asideClose'" class="main">
-    @if (workspaces(); as workspaces) {
-    <app-aside
-        (createWorkspace)="openWorkspaceCreate()"
-        (toggleAside)="toggleAside()"
-        [isAsideOpen]="asideOpen()"
-        [workspaces]="workspaces"
-    />
-    }
+<!--<main [class]="asideOpen() ? 'asideOpen' : 'asideClose'" class="main">-->
+<!--    @if (workspaces(); as workspaces) {-->
+<!--    <app-aside-->
+<!--        (createWorkspace)="openWorkspaceCreate()"-->
+<!--        (toggleAside)="toggleAside()"-->
+<!--        [isAsideOpen]="asideOpen()"-->
+<!--        [workspaces]="workspaces"-->
+<!--    />-->
+<!--    }-->
 
-    <app-header (createColumn)="openColumnCreate()" (manageStatus)="openStatusManage()" [workspaceName]="workspaceName()" />
+<!--    <app-header-->
+<!--        (createColumn)="openColumnCreate()"-->
+<!--        (editWorkspace)="openWorkspaceEdit()"-->
+<!--        (manageStatus)="openStatusManage()"-->
+<!--        [workspaceName]="workspaceName()"-->
+<!--    />-->
 
-    @if (workspace(); as workspace) {
-    <app-workspace (createColumn)="openColumnCreate()" [workspace]="workspace" />
-    }
-</main>
+<!--    @if (workspace(); as workspace) {-->
+<!--    <app-workspace (createColumn)="openColumnCreate()" [workspace]="workspace" />-->
+<!--    }-->
+<!--</main>-->
 
-@if (showColumnCreate() && workspace(); as workspace) {
-<app-column-create (closed)="closeColumnCreate()" [workspaceId]="workspace.id" />
-}
+<!--@if (showColumnCreate() && workspace(); as workspace) {-->
+<!--<app-column-create (closed)="closeColumnCreate()" [workspaceId]="workspace.id" />-->
+<!--}-->
 
-@if (showWorkspaceCreate()) {
-<app-workspace-create (closed)="closeWorkspaceCreate()" />
-}
+<!--@if (showWorkspaceCreate()) {-->
+<!--<app-workspace-create (closed)="closeWorkspaceCreate()" />-->
+<!--}-->
 
-@if (showStatusManage() && workspace(); as workspace) {
-<app-status-manage (closed)="closeStatusManage()" [workspaceId]="workspace.id" />
-}
+<!--@if (showStatusManage() && workspace(); as workspace) {-->
+<!--<app-status-manage (closed)="closeStatusManage()" [workspaceId]="workspace.id" />-->
+<!--}-->
+
+<!--@if (showWorkspaceEdit() && workspace(); as workspace) {-->
+<!--<app-workspace-edit (closed)="closeWorkspaceEdit()" [workspaceId]="workspace.id" [workspaceName]="workspace.name" />-->
+<!--}-->

@@ -1,5 +1,5 @@
 import { Injectable, signal } from "@angular/core";
-import { HttpErrorResponse } from "@angular/common/http";
+import type { HttpErrorResponse } from "@angular/common/http";
 import { toast } from "ngx-sonner";
 
 export type ErrorType = "http" | "socket" | "unknown";

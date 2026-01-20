@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, inject, input, output } from "@angular/core";
 import { ArrowLeft, ArrowRight, LucideAngularModule, Plus } from "lucide-angular";
-import { Workspace } from "@domain/models/workspace.model";
+import type { Workspace } from "../../../workspace/domain/workspace.model";
 import { WorkspaceStateService } from "@shared/workspace-state-service";
 import { RouterLink } from "@angular/router";
-import { InitialLettersPipe } from "@application/initial-letters-pipe";
+import { InitialLettersPipe } from "../../../workspace/application/initial-letters-pipe";
 
 @Component({
     selector: "app-aside",

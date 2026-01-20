@@ -1,78 +1,59 @@
-export type StatusColorKey =
-    | 'blue'
-    | 'orange'
-    | 'green'
-    | 'red'
-    | 'purple'
-    | 'pink'
-    | 'yellow'
-    | 'gray';
-
-export type StatusColor = {
-    key: StatusColorKey;
-    name: string;
-    light: string;
-    dark: string;
-};
-
-export const STATUS_COLORS: StatusColor[] = [
-    {
-        key: 'blue',
-        name: 'Bleu',
-        light: '#E3F2FD',
-        dark: '#1E3A8A',
-    },
-    {
-        key: 'orange',
-        name: 'Orange',
-        light: '#FFF3E0',
-        dark: '#9A3412',
-    },
-    {
-        key: 'green',
-        name: 'Vert',
-        light: '#E8F5E9',
-        dark: '#14532D',
-    },
-    {
-        key: 'red',
-        name: 'Rouge',
-        light: '#FFEBEE',
-        dark: '#991B1B',
-    },
-    {
-        key: 'purple',
-        name: 'Violet',
-        light: '#F3E5F5',
-        dark: '#581C87',
-    },
-    {
-        key: 'pink',
-        name: 'Rose',
-        light: '#FCE4EC',
-        dark: '#9F1239',
-    },
-    {
-        key: 'yellow',
-        name: 'Jaune',
-        light: '#FFFDE7',
-        dark: '#854D0E',
-    },
-    {
-        key: 'gray',
-        name: 'Gris',
-        light: '#F5F5F5',
-        dark: '#374151',
-    },
-];
-
-export function getColorByKey(key: string): StatusColor | undefined {
-    return STATUS_COLORS.find(color => color.key === key);
-}
-
-export function getColorByHex(hex: string): StatusColor | undefined {
-    return STATUS_COLORS.find(color =>
-        color.light.toLowerCase() === hex.toLowerCase() ||
-        color.dark.toLowerCase() === hex.toLowerCase()
-    );
-}
+// import type { StatutColorEnum } from "../../statut/domain/statut.model";
+//
+// export type StatutColor = {
+//     key: StatutColorEnum;
+//     name: string;
+//     light: string;
+//     dark: string;
+// };
+//
+// export const STATUT_COLORS: StatutColor[] = [
+//     {
+//         key: "blue",
+//         name: "Bleu",
+//         light: "oklch(0.9532 0.0218 239.43)",
+//         dark: "oklch(0.3791 0.1378 265.52)",
+//     },
+//     {
+//         key: "orange",
+//         name: "Orange",
+//         light: "oklch(0.9685 0.0282 79.48)",
+//         dark: "oklch(0.4698 0.143 37.3)",
+//     },
+//     {
+//         key: "green",
+//         name: "Vert",
+//         light: "oklch(0.9571 0.021 147.64)",
+//         dark: "oklch(0.3925 0.0896 152.54)",
+//     },
+//     {
+//         key: "red",
+//         name: "Rouge",
+//         light: "oklch(0.9568 0.0221 7.17)",
+//         dark: "oklch(0.4437 0.1613 26.9)",
+//     },
+//     {
+//         key: "purple",
+//         name: "Violet",
+//         light: "oklch(0.9376 0.026 321.94)",
+//         dark: "oklch(0.3807 0.1661 304.99)",
+//     },
+//     {
+//         key: "pink",
+//         name: "Rose",
+//         light: "oklch(0.9405 0.0282 355.44)",
+//         dark: "oklch(0.4546 0.1713 13.7)",
+//     },
+//     {
+//         key: "yellow",
+//         name: "Jaune",
+//         light: "oklch(0.9898 0.0288 102.67)",
+//         dark: "oklch(0.4762 0.1034 61.91)",
+//     },
+//     {
+//         key: "gray",
+//         name: "Gris",
+//         light: "oklch(0.9702 0 0)",
+//         dark: "oklch(0.3729 0.0306 259.73)",
+//     },
+// ];

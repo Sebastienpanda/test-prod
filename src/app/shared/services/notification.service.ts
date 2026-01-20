@@ -42,11 +42,19 @@ export class NotificationService {
         toast.success("Colonne créée", { description: name });
     }
 
+    columnUpdated(name: string): void {
+        toast.success("Colonne modifiée", { description: name });
+    }
+
     columnMoved(name: string): void {
         toast.info("Colonne déplacée", { description: name });
     }
 
     workspaceCreated(name: string): void {
         toast.success("Workspace créé", { description: name });
+    }
+
+    workspaceUpdated(name: string): void {
+        toast.success("Workspace modifié", { description: name });
     }
 }

@@ -1,15 +1,14 @@
-import { inject, Injectable, signal } from "@angular/core";
-import { SocketService } from "./services/socket.service";
+import { Injectable, signal } from "@angular/core";
 
 @Injectable({
     providedIn: "root",
 })
 export class WorkspaceStateService {
     readonly selectedWorkspaceId = signal<string | null>(null);
-    private readonly socketService = inject(SocketService);
+    // private readonly socketService = inject(SocketService);
 
     selectWorkspace(id: string) {
         this.selectedWorkspaceId.set(id);
-        this.socketService.resetWorkspaceEvents();
+        // this.socketService.resetWorkspaceEvents();
     }
 }

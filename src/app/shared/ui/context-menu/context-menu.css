@@ -11,12 +11,12 @@
     background-color: var(--color-base-100);
     border: 1px solid var(--color-base-300);
     border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    min-width: 160px;
-    padding: 0.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    min-width: 180px;
+    padding: 0.375rem;
     position: absolute;
     right: 0;
-    top: 100%;
+    top: calc(100% + 4px);
     z-index: 100;
 
     @starting-style {

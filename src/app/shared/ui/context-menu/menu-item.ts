@@ -9,13 +9,19 @@ import { ChangeDetectionStrategy, Component } from "@angular/core";
             border-radius: 6px;
             cursor: pointer;
             display: flex;
-            gap: 0.5rem;
+            font-size: 0.875rem;
+            gap: 0.625rem;
             padding: 0.5rem 0.75rem;
             transition: background-color 150ms ease-in-out;
             width: 100%;
+            color: var(--color-base-content);
 
             &:hover {
                 background-color: var(--color-base-200);
+            }
+
+            &:active {
+                background-color: var(--color-base-300);
             }
         }
     `,

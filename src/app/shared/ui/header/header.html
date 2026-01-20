@@ -1,5 +1,18 @@
 <header class="header">
-    <h1>{{ workspaceName() ?? 'Mon projet' }}</h1>
+    <div class="header-title">
+        <h1>{{ workspaceName() ?? 'Mon projet' }}</h1>
+        @if (workspaceName()) {
+        <button
+            (click)="onEditWorkspace()"
+            appBtn
+            aria-label="Éditer le workspace"
+            class="edit-workspace-btn"
+            variant="circle"
+        >
+            <lucide-icon [img]="Pencil" aria-hidden="true" size="16" />
+        </button>
+        }
+    </div>
     <div class="actions">
         @if (workspaceName()) {
         <button

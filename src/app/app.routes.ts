@@ -1,7 +1,3 @@
-import { Routes } from '@angular/router';
-import kanbanRouter from '@application/kanban.router';
+import type { Routes } from "@angular/router";
 
-export const routes: Routes = [...kanbanRouter, {
-    path: "signin",
-    loadComponent: () => import("@application/signin/signin")
-}];
+export const routes: Routes = [];
