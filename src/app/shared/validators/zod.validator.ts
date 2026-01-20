@@ -1,4 +1,4 @@
-import { AbstractControl, ValidationErrors, ValidatorFn } from "@angular/forms";
+import type { AbstractControl, ValidationErrors, ValidatorFn } from "@angular/forms";
 import type * as z from "zod/mini";
 
 export function zodValidator<T extends z.ZodMiniType>(schema: T, field: string): ValidatorFn {

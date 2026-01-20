@@ -3,12 +3,12 @@ import { Injectable, signal } from '@angular/core';
 import { BehaviorSubject, interval } from 'rxjs';
 import { client } from '@shared/services/auth';
 
-interface User {
+type User = {
     id: string;
     email: string;
 }
 
-interface TokenInfo {
+type TokenInfo = {
     token: string;
     issuedAt: Date;
     expiresAt: Date;

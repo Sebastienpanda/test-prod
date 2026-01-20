@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, ElementRef, output, viewChild } from "@angular/core";
+import type { ElementRef} from "@angular/core";
+import { ChangeDetectionStrategy, Component, output, viewChild } from "@angular/core";
 import { LucideAngularModule } from "lucide-angular";
 
 @Component({
